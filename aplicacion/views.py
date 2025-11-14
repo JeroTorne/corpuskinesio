@@ -139,6 +139,8 @@ def crear_historia_clinica(request, paciente_id):
 
 #-------////----------BUSCAR PACIENTE--------////------------------#
 
+#-------////----------BUSCAR PACIENTE--------////------------------#
+
 @user_passes_test(is_admin)
 def buscar_paciente(request):
     return render (request, "aplicacion/buscar_paciente.html")
@@ -147,13 +149,19 @@ def buscar_paciente(request):
 def buscar_paciente2(request):
     nombre = request.GET.get('nombre', '').strip()
     apellido = request.GET.get('apellido', '').strip()
+    
     if nombre or apellido:
-        paciente = PerfilPaciente.objects.filter(
-            Q(nombre__icontains=nombre) | Q(apellido__icontains=apellido)
-        )
+        paciente = PerfilPaciente.objects.all()
+        
+        if nombre:
+            paciente = paciente.filter(nombre__icontains=nombre)
+        
+        if apellido:
+            paciente = paciente.filter(apellido__icontains=apellido)
+        
         return render(request, "aplicacion/listadopacientes.html", {"paciente": paciente})
+    
     return redirect('lista_pacientes')
-
 
 class PacienteList(LoginRequiredMixin,ListView):
     model = PerfilPaciente
@@ -199,3 +207,21 @@ def lista_pacientes(request):
 
 #-------////----------FIN LISTA PACIENTES--------////------------------#
 
+#-------////----------EDITAR PACIENTE--------////------------------
+
+@user_passes_test(is_admin)
+def editar_paciente(request, pk):
+    paciente = get_object_or_404(PerfilPaciente, pk=pk)
+    
+    if request.method == 'POST':
+        form = PacienteForm(request.POST, instance=paciente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Perfil del paciente actualizado correctamente.')
+            return redirect('lista_pacientes')  # o la URL que prefieras
+    else:
+        form = PacienteForm(instance=paciente)
+    
+    return render(request, 'aplicacion/editar_paciente.html', {'form': form, 'paciente': paciente})
+
+#-------////----------FIN EDITAR PACIENTE--------////------------------#
