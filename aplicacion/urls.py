@@ -38,5 +38,7 @@ urlpatterns = [
 
     path('crear_historia_clinica/<int:paciente_id>/', crear_historia_clinica, name='crear_historia_clinica'),
 
+    path('paciente/editar/<int:pk>/', editar_paciente, name='editar_paciente'),
+
     #-------////----------FIN BUSCAR PACIENTE--------////------------------# 
 ]
